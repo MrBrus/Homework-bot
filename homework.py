@@ -32,10 +32,14 @@ HOMEWORK_STATUSES = {
 
 
 def send_message(bot, message):
+    """Функция отправки сообщения ботом в указанный чат"""
+
     bot.send_message(TELEGRAM_CHAT_ID, message)
 
 
 def get_api_answer(current_timestamp):
+    """Функция запроса к API сервиса"""
+
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
     response = requests.get(ENDPOINT, headers=HEADERS, params=params)
@@ -47,6 +51,8 @@ def get_api_answer(current_timestamp):
 
 
 def check_response(response):
+    """Функция проверки ответа API на корректность"""
+
     if not response['homeworks']:
         logging.error('В ответе отсутствует требуемый ключ')
     homeworks = response.get('homeworks')
@@ -61,11 +67,13 @@ def check_response(response):
 
 
 def parse_status(homework):
+    """Проверка статуса домашней работы"""
+
     if not isinstance(homework, dict):
         message = 'Неверный тип данных'
         raise TypeError(message)
     if ('status' or 'homework_name') not in homework:
-        message = f'Ключи отсутствуют'
+        message = 'Ключи отсутствуют'
         raise KeyError(message)
     homework_name = homework['homework_name']
     homework_status = homework['status']
@@ -77,6 +85,8 @@ def parse_status(homework):
 
 
 def check_tokens():
+    """Проверка токенов"""
+
     if not (PRACTICUM_TOKEN or TELEGRAM_TOKEN or TELEGRAM_CHAT_ID):
         logging.critical(
             "Отсутствует один из токенов. Проверьте их наличие в файле .env")
