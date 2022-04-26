@@ -7,7 +7,6 @@ import requests
 import telegram
 from dotenv import load_dotenv
 from requests import exceptions
-from telegram.ext import Updater
 
 load_dotenv()
 
@@ -23,7 +22,6 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s %(name)s %(message)s',
     level=logging.INFO)
 
-updater = Updater(token=TELEGRAM_TOKEN)
 HOMEWORK_STATUSES = {
     'approved': 'Работа проверена: ревьюеру всё понравилось. Ура!',
     'reviewing': 'Работа взята на проверку ревьюером.',
