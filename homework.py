@@ -79,11 +79,8 @@ def parse_status(homework):
 
 def check_tokens():
     """Проверка токенов."""
-    if not (PRACTICUM_TOKEN or TELEGRAM_TOKEN or TELEGRAM_CHAT_ID):
-        logging.critical(
-            "Отсутствует один из токенов. Проверьте их наличие в файле .env")
-        return False
-    return PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
+    if PRACTICUM_TOKEN or TELEGRAM_TOKEN or TELEGRAM_CHAT_ID:
+        return True
 
 
 def main():
