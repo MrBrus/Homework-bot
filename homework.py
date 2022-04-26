@@ -82,6 +82,7 @@ def check_tokens():
     """Проверка токенов."""
     if PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
         return True
+    raise SystemExit
 
 
 def main():
@@ -89,7 +90,6 @@ def main():
     if not check_tokens():
         error = 'Токены отсутствуют'
         logging.error(error, exc_info=True)
-        sys.exit()
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
     status = ''
