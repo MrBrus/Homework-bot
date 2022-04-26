@@ -50,12 +50,9 @@ def get_api_answer(current_timestamp):
 
 def check_response(response):
     """Функция проверки ответа API на корректность."""
-    if not response['homeworks']:
-        logging.error('В ответе отсутствует требуемый ключ')
-    homeworks = response.get('homeworks')
     if response is None or not isinstance(response, dict):
-        logging.error('Полученный ответ не соответствует ожидаемому')
-        raise ValueError('В ответе нет списка homeworks')
+        raise TypeError('В ответе нет списка homeworks')
+    homeworks = response.get('homeworks')
     if homeworks is None or not isinstance(homeworks, list):
         logging.error('Полученный ответ не соответствует ожидаемому')
         raise ValueError('В ответе нет списка homeworks')
@@ -86,7 +83,7 @@ def check_tokens():
         logging.critical(
             "Отсутствует один из токенов. Проверьте их наличие в файле .env")
         return False
-    return True
+    return PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
 
 
 def main():
@@ -100,13 +97,15 @@ def main():
     while True:
         try:
             response = get_api_answer(current_timestamp)
+
         except Exception as error:
             logging.error(f'Ошибка при запросе к основному API. {error}')
             time.sleep(RETRY_TIME)
             continue
         try:
             if check_response(response):
-                homework = check_response(response)
+                homeworks = check_response(response)
+                homework = homeworks[0]
                 message = parse_status(homework)
                 if message != status:
                     send_message(bot, status)
