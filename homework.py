@@ -83,6 +83,8 @@ def check_tokens():
     print(TELEGRAM_CHAT_ID)
     if PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
         return True
+    else:
+        return False
 
 
 def main():
