@@ -14,6 +14,7 @@ PRACTICUM_TOKEN = os.getenv("my_practicum_token")
 TELEGRAM_TOKEN = os.getenv("my_telegram_token")
 TELEGRAM_CHAT_ID = os.getenv("my_telegram_chat")
 
+
 RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
@@ -76,9 +77,6 @@ def parse_status(homework):
 
 def check_tokens():
     """Проверка токенов."""
-    print(PRACTICUM_TOKEN)
-    print(TELEGRAM_TOKEN)
-    print(TELEGRAM_CHAT_ID)
     if PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
         return True
     else:
@@ -87,7 +85,6 @@ def check_tokens():
 
 def main():
     """Основная логика работы бота."""
-    print(check_tokens())
     if not check_tokens():
         error = 'Токены отсутствуют'
         logging.error(error, exc_info=True)
