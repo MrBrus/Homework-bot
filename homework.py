@@ -78,13 +78,16 @@ def parse_status(homework):
 
 def check_tokens():
     """Проверка токенов."""
+    print(PRACTICUM_TOKEN)
+    print(TELEGRAM_TOKEN)
+    print(TELEGRAM_CHAT_ID)
     if PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
         return True
-    return False
 
 
 def main():
     """Основная логика работы бота."""
+    print(check_tokens())
     if not check_tokens():
         error = 'Токены отсутствуют'
         logging.error(error, exc_info=True)
