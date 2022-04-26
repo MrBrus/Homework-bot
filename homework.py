@@ -1,6 +1,5 @@
 import logging
 import os
-import sys
 import time
 from http import HTTPStatus
 
@@ -12,9 +11,9 @@ from telegram.ext import Updater
 
 load_dotenv()
 
-PRACTICUM_TOKEN = os.getenv("PRACTICUM_TOKEN")
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+PRACTICUM_TOKEN = os.getenv("my_practicum_token")
+TELEGRAM_TOKEN = os.getenv("my_telegram_token")
+TELEGRAM_CHAT_ID = os.getenv("my_telegram_chat")
 
 RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
@@ -54,7 +53,6 @@ def check_response(response):
     if response is None or not isinstance(response, dict):
         raise TypeError('В ответе нет списка homeworks')
     homeworks = response.get('homeworks')
-    print(homeworks)
     if homeworks is None or not isinstance(homeworks, list):
         raise ValueError('Список homeworks пуст')
     logging.info('Обновлен статус домашней работы')
@@ -82,7 +80,7 @@ def check_tokens():
     """Проверка токенов."""
     if PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
         return True
-    raise SystemExit
+    return False
 
 
 def main():
@@ -90,6 +88,7 @@ def main():
     if not check_tokens():
         error = 'Токены отсутствуют'
         logging.error(error, exc_info=True)
+        raise SystemExit
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
     status = ''
