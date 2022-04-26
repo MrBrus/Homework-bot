@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import time
 from http import HTTPStatus
 
@@ -53,9 +54,9 @@ def check_response(response):
     if response is None or not isinstance(response, dict):
         raise TypeError('В ответе нет списка homeworks')
     homeworks = response.get('homeworks')
+    print(homeworks)
     if homeworks is None or not isinstance(homeworks, list):
-        logging.error('Полученный ответ не соответствует ожидаемому')
-        raise ValueError('В ответе нет списка homeworks')
+        raise ValueError('Список homeworks пуст')
     logging.info('Обновлен статус домашней работы')
     return homeworks
 
@@ -79,7 +80,7 @@ def parse_status(homework):
 
 def check_tokens():
     """Проверка токенов."""
-    if PRACTICUM_TOKEN or TELEGRAM_TOKEN or TELEGRAM_CHAT_ID:
+    if PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
         return True
 
 
@@ -88,6 +89,7 @@ def main():
     if not check_tokens():
         error = 'Токены отсутствуют'
         logging.error(error, exc_info=True)
+        sys.exit()
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
     status = ''
