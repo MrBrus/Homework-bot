@@ -1,18 +1,12 @@
 import logging
-import os
+
 import time
 from http import HTTPStatus
 
 import requests
 import telegram
-from dotenv import load_dotenv
+from ProjectConfig import PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
 from requests import exceptions
-
-load_dotenv()
-
-PRACTICUM_TOKEN = os.getenv("my_practicum_token")
-TELEGRAM_TOKEN = os.getenv("my_telegram_token")
-TELEGRAM_CHAT_ID = os.getenv("my_telegram_chat")
 
 
 RETRY_TIME = 600
@@ -92,7 +86,6 @@ def main():
     while True:
         try:
             response = get_api_answer(current_timestamp)
-
         except Exception as error:
             logging.error(f'Ошибка при запросе к основному API. {error}')
             time.sleep(RETRY_TIME)
