@@ -1,13 +1,12 @@
 import logging
-
+import sys
 import time
 from http import HTTPStatus
 
 import requests
 import telegram
-from ProjectConfig import PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
-from requests import exceptions
 
+from ProjectConfig import PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
 
 RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
@@ -26,19 +25,29 @@ HOMEWORK_STATUSES = {
 
 def send_message(bot, message):
     """Функция отправки сообщения ботом в указанный чат."""
-    bot.send_message(TELEGRAM_CHAT_ID, message)
+    try:
+        bot.send_message(TELEGRAM_CHAT_ID, message)
+    except telegram.TelegramError as error:
+        logging.error(f'Телеграм недоступен. {error}')
 
 
 def get_api_answer(current_timestamp):
     """Функция запроса к API сервиса."""
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
-    response = requests.get(ENDPOINT, headers=HEADERS, params=params)
+    try:
+        response = requests.get(ENDPOINT, headers=HEADERS, params=params)
+    except Exception as error:
+        logging.error(f'Ошибка при запросе к основному API: {error}')
+        raise Exception(f'Ошибка при запросе к основному API: {error}')
     if response.status_code != HTTPStatus.OK:
-        error = f'ошибочный статус ответа по API: {response.status_code}'
-        logging.error(error)
-        raise exceptions.HTTPError(error)
-    return response.json()
+        logging.error(f'Ошибка {response.status_code}')
+        raise Exception(f'Ошибка {response.status_code}')
+    try:
+        return response.json()
+    except ValueError:
+        logging.error('Ошибка формата json')
+        raise ValueError('Ошибка формата json')
 
 
 def check_response(response):
@@ -59,7 +68,7 @@ def parse_status(homework):
         raise TypeError(message)
     if ('status' or 'homework_name') not in homework:
         message = 'Ключи отсутствуют'
-        raise KeyError(message)
+        raise Exception(message)
     homework_name = homework['homework_name']
     homework_status = homework['status']
     if homework_status not in HOMEWORK_STATUSES:
@@ -79,7 +88,7 @@ def main():
     if not check_tokens():
         error = 'Токены отсутствуют'
         logging.error(error, exc_info=True)
-        raise SystemExit
+        raise sys.exit()
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
     status = ''
@@ -88,7 +97,6 @@ def main():
             response = get_api_answer(current_timestamp)
         except Exception as error:
             logging.error(f'Ошибка при запросе к основному API. {error}')
-            time.sleep(RETRY_TIME)
             continue
         try:
             if check_response(response):
@@ -98,15 +106,15 @@ def main():
                 if message != status:
                     send_message(bot, status)
                     status = message
-            current_timestamp = current_timestamp
-            time.sleep(RETRY_TIME)
+            current_timestamp = response.get('current_date')
         except Exception as error:
             message = f'Сбой в работе программы {error}'
             if message != status:
                 send_message(bot, message)
                 status = message
+        finally:
             time.sleep(RETRY_TIME)
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
