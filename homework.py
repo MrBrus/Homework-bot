@@ -104,8 +104,6 @@ def main():
             if hotkey in ('Y', 'y'):
                 print('Спасибо, что были с нами!')
                 break
-            elif hotkey in ('N', 'n'):
-                print('Продолжаем!')
         except Exception as error:
             message = f'Сбой в работе программы {error}'
             if message != status:
