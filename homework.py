@@ -6,8 +6,8 @@ from http import HTTPStatus
 import requests
 import telegram
 
-from exceptions import *
-from project_config import *
+import exceptions as exc
+import project_config as pc
 
 logging.basicConfig(
     format='%(asctime)s %(levelname)s %(name)s %(message)s',
@@ -17,8 +17,8 @@ logging.basicConfig(
 def send_message(bot, message):
     """Функция отправки сообщения ботом в указанный чат."""
     try:
-        bot.send_message(TELEGRAM_CHAT_ID, message)
-    except TelegramException as error:
+        bot.send_message(pc.TELEGRAM_CHAT_ID, message)
+    except exc.TelegramException as error:
         logging.error(f'Телеграм недоступен. {error}')
 
 
@@ -27,14 +27,14 @@ def get_api_answer(current_timestamp):
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
     try:
-        response = requests.get(ENDPOINT, headers=HEADERS, params=params)
+        response = requests.get(pc.ENDPOINT, headers=pc.HEADERS, params=params)
     except Exception as error:
         logging.error(f'Ошибка при запросе к основному API: {error}')
-        raise GetAPIException(f'Ошибка при запросе к'
+        raise exc.GetAPIException(f'Ошибка при запросе к'
                               f'основному API: {error}')
     if response.status_code != HTTPStatus.OK:
         logging.error(f'Ошибка {response.status_code}')
-        raise GetAPIException(f'Ошибка при запросе'
+        raise exc.GetAPIException(f'Ошибка при запросе'
                               f'к основному API: {response.status_code}')
     try:
         return response.json()
@@ -61,19 +61,20 @@ def parse_status(homework):
         raise TypeError(message)
     if ('status' or 'homework_name') not in homework:
         message = 'Ключи отсутствуют'
-        raise StatusException(message)
+        raise exc.StatusException(message)
     homework_name = homework['homework_name']
     homework_status = homework['status']
-    if homework_status not in HOMEWORK_STATUSES:
+    if homework_status not in pc.HOMEWORK_STATUSES:
         message = 'Неизвестный статус работы'
         raise TypeError(message)
-    verdict = HOMEWORK_STATUSES[homework_status]
+    verdict = pc.HOMEWORK_STATUSES[homework_status]
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
 def check_tokens():
     """Проверка токенов."""
-    return bool(PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID)
+    return bool(pc.PRACTICUM_TOKEN and pc.TELEGRAM_TOKEN and
+                pc.TELEGRAM_CHAT_ID)
 
 
 def main():
@@ -82,7 +83,7 @@ def main():
         error = 'Токены отсутствуют'
         logging.error(error, exc_info=True)
         sys.exit()
-    bot = telegram.Bot(token=TELEGRAM_TOKEN)
+    bot = telegram.Bot(token=pc.TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
     status = ''
     while True:
@@ -115,7 +116,7 @@ def main():
                 send_message(bot, message)
                 status = message
         finally:
-            time.sleep(RETRY_TIME)
+            time.sleep(pc.RETRY_TIME)
 
 
 if __name__ == '__main__':
