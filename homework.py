@@ -5,6 +5,7 @@ from http import HTTPStatus
 
 import requests
 import telegram
+from telegram import TelegramError
 
 import exceptions as exc
 import project_config as pc
@@ -19,8 +20,9 @@ def send_message(bot, message):
     """Функция отправки сообщения ботом в указанный чат."""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
-    except exc.TelegramException as error:
-        logging.error(f'Телеграм недоступен. {error}')
+    except TelegramError as error:
+        logging.error(f'Ошибка на стороне Telegram')
+        raise exc.TelegramException(f'Телеграм недоступен. {error}')
 
 
 def get_api_answer(current_timestamp):
@@ -97,13 +99,6 @@ def main():
                     send_message(bot, status)
                     status = message
             current_timestamp = response.get('current_date', current_timestamp)
-        except KeyboardInterrupt:
-            hotkey = input(
-                'Хотите остановить бота? Y/N: '
-            )
-            if hotkey in ('Y', 'y'):
-                print('Спасибо, что были с нами!')
-                break
         except Exception as error:
             message = f'Сбой в работе программы {error}'
             if message != status:
@@ -114,4 +109,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Работа бота прервана')
+        sys.exit(0)
