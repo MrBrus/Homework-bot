@@ -8,6 +8,7 @@ import telegram
 
 import exceptions as exc
 import project_config as pc
+from project_config import PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
 
 logging.basicConfig(
     format='%(asctime)s %(levelname)s %(name)s %(message)s',
@@ -17,7 +18,7 @@ logging.basicConfig(
 def send_message(bot, message):
     """Функция отправки сообщения ботом в указанный чат."""
     try:
-        bot.send_message(pc.TELEGRAM_CHAT_ID, message)
+        bot.send_message(TELEGRAM_CHAT_ID, message)
     except exc.TelegramException as error:
         logging.error(f'Телеграм недоступен. {error}')
 
@@ -31,11 +32,11 @@ def get_api_answer(current_timestamp):
     except Exception as error:
         logging.error(f'Ошибка при запросе к основному API: {error}')
         raise exc.GetAPIException(f'Ошибка при запросе к'
-                              f'основному API: {error}')
+                                  f'основному API: {error}')
     if response.status_code != HTTPStatus.OK:
         logging.error(f'Ошибка {response.status_code}')
         raise exc.GetAPIException(f'Ошибка при запросе'
-                              f'к основному API: {response.status_code}')
+                                  f'к основному API: {response.status_code}')
     try:
         return response.json()
     except ValueError:
@@ -73,8 +74,7 @@ def parse_status(homework):
 
 def check_tokens():
     """Проверка токенов."""
-    return bool(pc.PRACTICUM_TOKEN and pc.TELEGRAM_TOKEN and
-                pc.TELEGRAM_CHAT_ID)
+    return bool(PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID)
 
 
 def main():
@@ -83,16 +83,12 @@ def main():
         error = 'Токены отсутствуют'
         logging.error(error, exc_info=True)
         sys.exit()
-    bot = telegram.Bot(token=pc.TELEGRAM_TOKEN)
+    bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
     status = ''
     while True:
         try:
             response = get_api_answer(current_timestamp)
-        except Exception as error:
-            logging.error(f'Ошибка при запросе к основному API. {error}')
-            continue
-        try:
             if check_response(response):
                 homeworks = check_response(response)
                 homework = homeworks[0]
