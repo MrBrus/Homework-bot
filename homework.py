@@ -21,7 +21,7 @@ def send_message(bot, message):
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
     except TelegramError as error:
-        logging.error(f'Ошибка на стороне Telegram')
+        logging.error('Ошибка на стороне Telegram')
         raise exc.TelegramException(f'Телеграм недоступен. {error}')
 
 
@@ -33,11 +33,11 @@ def get_api_answer(current_timestamp):
         response = requests.get(pc.ENDPOINT, headers=pc.HEADERS, params=params)
     except Exception as error:
         logging.error(f'Ошибка при запросе к основному API: {error}')
-        raise exc.GetAPIException(f'Ошибка при запросе к'
+        raise exc.GetAPIException(f'Ошибка при запросе к '
                                   f'основному API: {error}')
     if response.status_code != HTTPStatus.OK:
         logging.error(f'Ошибка {response.status_code}')
-        raise exc.GetAPIException(f'Ошибка при запросе'
+        raise exc.GetAPIException(f'Ошибка при запросе '
                                   f'к основному API: {response.status_code}')
     try:
         return response.json()
